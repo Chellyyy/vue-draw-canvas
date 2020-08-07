@@ -10,15 +10,17 @@ npm install
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Quick Start
 ```
-npm run build
-```
+import Vue from 'vue'
+import DrawCanvas from 'vue-draw-canvas'
 
-### Lints and fixes files
-```
-npm run lint
-```
+Vue.use(DrawCanvas)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+// or
+import { DrawCanvase } from 'vue-draw-canvas'
+
+Vue.component(DrawCanvase.name, DrawCanvase)
+```
+### Usage
+![image](https://github.com/Chellyyy/vue-draw-canvas/examples/assets/example.png)

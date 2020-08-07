@@ -344,7 +344,7 @@
     }
 </script>
 
-<style>
+<style scoped>
     .common-box{
         width: 10px;
         height: 10px;
