@@ -1,6 +1,6 @@
 {
   "name": "vue-draw-canvas",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": false,
   "description": "It is a Canvas Component ",
   "main": "./lib/vue-draw-canvas.common.js",
@@ -9,6 +9,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build:lib": "vue-cli-service build --target lib --name vue-draw-canvas --dest lib packages/DrawCanvas/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chellyyy/vue-draw-canvas"
   },
   "dependencies": {
     "core-js": "^3.6.5",

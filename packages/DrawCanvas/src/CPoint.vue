@@ -49,7 +49,7 @@
                 currentY: 0,
                 tempX: 0,
                 tempY: 0,
-                tempP:null,
+                // tempP:null,
             }
         },
         props: {
@@ -101,16 +101,13 @@
             },
         },
         updated() {
-            // console.log("update");
         },
         methods: {
             handleCClick() {
-                // console.log("c-click");
                 if (this.moveFlag) {
                     this.moveFlag = false;
                     this.tempX = 0;
                     this.tempY = 0;
-                    this.tempP = null;
                 }
                 if (this.clickFlag) {
                     this.clickFlag = false;
@@ -120,7 +117,6 @@
                 }
             },
             handlePClick() {
-                // console.log("p-lick");
                 if (this.clickFlag) {
                     this.clickFlag = false;
                     this.current = null;
@@ -131,18 +127,12 @@
             checkInRect(x, y) {
                 let result = false;
                 let item = this.narrowP[0];
-                // x = this.getRealPoint(x);
-                // y = this.getRealPoint(y);
-                // if ((x >= this.getRealPoint(item.x) && x < this.getRealPoint((item.x + item.w))) && (y > this.getRealPoint(item.y) && y < this.getRealPoint((item.y + item.h)))) {
-                //     result = true;
-                // }
                 if ((x >= item.x && x < (item.x + item.w)) && (y > item.y && y < (item.y + item.h))) {
                     result = true;
                 }
                 return result
             },
             handleCLeave() {
-                // console.log("c-leave");
                 if (this.clickFlag) {
                     this.clickFlag = false;
                     this.current = null;
@@ -151,30 +141,21 @@
                 }
             },
             handlePMouseDown(e) {
-                // console.log("p-down");
                 this.clickFlag = true;
                 this.current = e.currentTarget.id;
-                // console.log("page", this.current, e.pageX, e.pageY);
-                this.currentX = e.currentTarget.offsetLeft;
-                this.currentY = e.currentTarget.offsetTop;
-                // console.log("current", this.current, this.currentX, this.currentY);
+                this.currentX = e.pageX - e.currentTarget.offsetLeft;
+                this.currentY = e.pageY - e.currentTarget.offsetTop;
             },
             handleCMouseDown(e) {
                 if (!this.clickFlag) {
-                    console.log("c-down");
-                    let x = e.pageX - e.currentTarget.getBoundingClientRect().left;
-                    let y = e.pageY - e.currentTarget.getBoundingClientRect().top;
+                    let x = e.offsetX;
+                    let y = e.offsetY;
                     if (this.type === 'rect') {
-
-                        // console.log("zoneDown", x, y);
                         if (this.point.length) {
-                            this.currentX = e.pageX - e.currentTarget.getBoundingClientRect().left;
-                            this.currentY = e.pageY - e.currentTarget.getBoundingClientRect().top;
+                            this.tempX = x;
+                            this.tempY = y;
                             if (this.checkInRect(x, y)) {
-                                // console.log("inRect");
                                 this.moveFlag = true;
-                                this.tempX = this.point[0].x ;
-                                this.tempY = this.point[0].y ;
                                 return
                             }
                         }
@@ -182,20 +163,19 @@
                         y = this.getRealPoint(y);
                         this.point.splice(0, 1, {x, y, w: 0, h: 0});
                         this.clickFlag = true;
-                        console.log("clickFlag");
+                        this.currentX = e.pageX - e.offsetX;
+                        this.currentY = e.pageY - e.offsetY;
                     } else if (this.type === 'zone') {
                         if(this.pointInPolygon({x,y})){
                             this.moveFlag = true;
-                            this.currentX = e.pageX - e.currentTarget.getBoundingClientRect().left;
-                            this.currentY = e.pageY - e.currentTarget.getBoundingClientRect().top;
-                            this.tempP = JSON.parse(JSON.stringify(this.point));
+                            this.tempX = x;
+                            this.tempY = y;
                             return
                         }
                         if (this.point.length === this.limit) {
                             this.$emit('handleLimit', this.id, this.point.length);
                             return
                         }
-                        // console.log("zone", x, y);
                         x = this.getRealPoint(x);
                         y = this.getRealPoint(y);
                         this.point.push({x, y})
@@ -203,7 +183,6 @@
                         x = this.getRealPoint(x);
                         y = this.getRealPoint(y);
                         if (this.point.length * 2 === this.limit && this.point[this.point.length - 1].length === 2) {
-                            // console.log("emit");
                             this.$emit('handleLimit', this.id, this.point.length * 2);
                             return
                         }
@@ -216,62 +195,48 @@
                 }
             },
             handleCMouseMove(e) {
-                // console.log("c-move");
                 if (this.clickFlag) {
-                    let x = e.pageX - e.currentTarget.getBoundingClientRect().left;
-                    let y = e.pageY - e.currentTarget.getBoundingClientRect().top;
+                    if (this.type === 'rect'){
+                        let x1 = e.pageX - this.currentX;
+                        let y1 = e.pageY - this.currentY;
+                        x1 = this.getRealPoint(x1);
+                        y1 = this.getRealPoint(y1);
+
+                        let tempPoint1 = this.point[0];
+                        tempPoint1.w = Math.abs(tempPoint1.x - x1);
+                        tempPoint1.h = Math.abs(tempPoint1.y - y1);
+                        this.point.splice(0, 1, tempPoint1);
+                        return
+                    }
+                    let x = e.pageX - this.currentX;
+                    let y = e.pageY - this.currentY;
                     if(x>=this.width-5||y>=this.height-5){
                         this.clickFlag = false;
                         return
                     }
-                    // console.log("move", this.current, x, y);
+                    x = this.getRealPoint(x);
+                    y = this.getRealPoint(y);
                     if (this.type === 'line') {
                         let tempId = this.current.slice(this.id.length);
-                        // console.log("temp", tempId);
                         let tempIndex = parseInt(tempId / 2);
                         let tempPoint = this.point[tempIndex];
-                        x = this.getRealPoint(x);
-                        y = this.getRealPoint(y);
                         tempPoint.splice(tempId % 2, 1, {x, y});
                         this.point.splice(tempIndex, 1, tempPoint);
                     } else if (this.type === 'zone') {
-                        x = this.getRealPoint(x);
-                        y = this.getRealPoint(y);
                         this.point.splice(this.current.slice(this.id.length), 1, {x, y});
-                        // console.log("notemp");
-                    } else if (this.type === 'rect') {
-                        let x1 = e.pageX - e.currentTarget.getBoundingClientRect().left;
-                        let y1 = e.pageY - e.currentTarget.getBoundingClientRect().top;
-                        x1 = this.getRealPoint(x1);
-                        y1 = this.getRealPoint(y1);
-                        let tempPoint1 = this.point[0];
-                        tempPoint1.w = Math.abs(tempPoint1.x - x1);
-                        tempPoint1.h = Math.abs(tempPoint1.y - y1);
-                        // console.log("w", tempPoint1.w, "h", tempPoint1.h);
-                        this.point.splice(0, 1, tempPoint1);
                     }
-
-                    // console.log("click-move")
-                    // let tempP = this.point;
-                    // tempP[this.current.slice(this.id.length)] = {
-                    //     x,
-                    //     y
-                    // };
-                    // this.mounted();
-                    // this.point = tempP;
                 }
                 if (this.moveFlag) {
-                    let cX = e.pageX - e.currentTarget.getBoundingClientRect().left;
-                    let cY = e.pageY - e.currentTarget.getBoundingClientRect().top;
-                    let tX = cX - this.currentX;
-                    let tY = cY - this.currentY;
+                    let cX = e.offsetX;
+                    let cY = e.offsetY;
+                    let tX = cX - this.tempX;
+                    let tY = cY - this.tempY;
                     tX = this.getRealPoint(tX);
                     tY = this.getRealPoint(tY);
                     if (this.type === 'rect') {
-                        console.log("tmpX", tX, "tmpY", tY);
                         let tempPoint2 = this.point[0];
-                        tempPoint2.x = this.tempX + tX;
-                        tempPoint2.y = this.tempY + tY;
+                        tempPoint2.x = tempPoint2.x + tX;
+                        tempPoint2.y = tempPoint2.y + tY;
                         let w = this.getRealPoint(this.width);
                         let h = this.getRealPoint(this.height);
                         if(tempPoint2.x<=5||tempPoint2.x+tempPoint2.w>=w-5||tempPoint2.y<=5||tempPoint2.y+tempPoint2.h>=h-5){
@@ -280,18 +245,16 @@
                             this.tempY = 0;
                             return
                         }
-                        // console.log(tempPoint2);
                         this.point.splice(0, 1, tempPoint2);
                     }else if(this.type==='zone'){
                         let tempP = this.point;
                         for(let i =0;i<tempP.length;i++){
-                            tempP[i].x = this.tempP[i].x + tX;
-                            tempP[i].y = this.tempP[i].y + tY;
+                            tempP[i].x = tempP[i].x + tX;
+                            tempP[i].y = tempP[i].y + tY;
                             let w = this.getRealPoint(this.width);
                             let h = this.getRealPoint(this.height);
                             if(tempP[i].x>=w-5||tempP[i].x<=5||
                                tempP[i].y>=h-5||tempP[i].y<=5){
-                                // console.log("overflow");
                                 this.moveFlag = false;
                                 this.tempP = null;
                                 return
@@ -300,7 +263,8 @@
                         this.point = tempP;
                         this.point.splice(0,0);
                     }
-                    // console.log("rectFlag-mousemove")
+                    this.tempX = cX;
+                    this.tempY = cY;
                 }
             },
             pointInPolygon(p) {

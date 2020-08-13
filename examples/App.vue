@@ -69,6 +69,18 @@
                             show: true,
                             showNumber: true,
                             draw: true
+                        },
+                        {
+                            id: 'direct1',
+                            type: 'direct',
+                            limit: 0, // 无意义
+                            color: 'green', // 颜色
+                            fill: '',
+                            text: '西',//箭头上方显示文字
+                            point: [{"x": 500, "y": 200}],  //起始坐标
+                            show: true,
+                            showNumber: false,
+                            draw: false
                         }
                     ]
                 },

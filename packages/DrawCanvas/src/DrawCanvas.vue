@@ -40,33 +40,32 @@
         },
         computed: {
             src: function () {
-                console.log("src", this.config);
                 return this.config.src;
             },
             multiple: function () {
+                return (this.config.multiple ? this.config.multiple : 1);
 
-                return this.config.multiple;
             },
             magnify: function () {
-                return this.config.magnify;
+                return (this.config.magnify ? this.config.magnify: false);
             }
         },
         updated() {
+            // console.log("vue-draw-canvas updated");
             this.initCanvas();
-            // console.log("update",this.multiple)
         },
         mounted() {
-            console.log("mounted");
+            console.log("vue-draw-canvas mounted");
             this.initCanvas();
             this.changeImg();
         },
         destroyed() {
-            console.log("destroyed");
+            console.log("vue-draw-canvas destroyed");
         },
 
         methods: {
             draw(ctx, config, handleFn) {
-                let _that = this;
+                // let _that = this;
                 // let name = config.id;
                 let type = config.type;
                 let point = config.point;
@@ -76,8 +75,6 @@
                 let text = config.text;
 
                 function drawZone(item) {
-                    console.log(_that.id, "draw-zone");
-                    // ctx.globalAlpha = 1;
                     ctx.beginPath();
                     ctx.strokeStyle = color;
                     ctx.moveTo(handleFn(item[0].x, "x"), handleFn(item[0].y, "y"));
@@ -108,28 +105,7 @@
 
                 }
 
-                // function assembleRect(point) {
-                //     let zone = {
-                //         x: 0,
-                //         y: 0,
-                //         w: 0,
-                //         h: 0
-                //     };
-                //     if (point.length < 2) {
-                //         return zone;
-                //     } else {
-                //         zone.x = point[0].x;
-                //         zone.y = point[0].y;
-                //         zone.w = Math.abs(point[0].x - point[1].x);
-                //         zone.h = Math.abs(point[0].y - point[1].y);
-                //     }
-                //     return zone
-                // }
-
                 function drawRect(item) {
-                    console.log(_that.id, "draw-rect");
-                    // ctx.globalAlpha = 1;
-                    // item = assembleRect(item);
                     ctx.beginPath();
                     ctx.strokeStyle = color;
                     item = item[0];
@@ -137,7 +113,6 @@
                         y = handleFn(item.y, "y"),
                         w = handleFn(item.w, "w"),
                         h = handleFn(item.h, "h");
-                    //console.log("draw",mul,name, x, y, w, h);
                     ctx.rect(x, y, w, h);
                     if (fill) {
                         // ctx.globalAlpha = 0.5;
@@ -157,8 +132,6 @@
                 }
 
                 function drawLine(item) {
-                    console.log(_that.id, "draw-line");
-                    // ctx.globalAlpha = 1;
                     for (let i = 0; i < item.length; i++) {
                         ctx.beginPath();
                         ctx.strokeStyle = color;
@@ -215,7 +188,6 @@
                 }
 
                 function drawDirect(item) {
-                    console.log(_that.id, "draw-direct");
                     let w = 30, h = 40;
                     let x = item[0].x ? handleFn(item[0].x, "x") : handleFn(0, "x");
                     let y = item[0].y ? handleFn(item[0].y, "y") : handleFn(0, "y");
@@ -299,9 +271,7 @@
             },
             initCanvas() {
                 if (this.config.layer) {
-                    // console.log("canvas", this.id);
                     let c = this.$refs.can;
-                    // console.log(this.id+"can");
                     let ctx = c.getContext("2d");
 
                     ctx.clearRect(0, 0, 2000, 2000);
@@ -343,8 +313,6 @@
                                 // 图片被放大区域的半径
                                 let originalRadius = 300;
                                 let multiple = (1 / _this.multiple).toFixed(4);
-                                // console.log(_this.multiple, multiple, centerPoint.x,centerPoint.y);
-                                // console.log("center", centerPoint.x, centerPoint.y);
                                 mctx.drawImage(biggerImg,
                                     centerPoint.x * multiple - 100,
                                     centerPoint.y * multiple - 100,
@@ -381,7 +349,6 @@
                 }
             },
             changeImg() {
-                console.log("img-src");
                 let img = this.$refs.bgImg;
                 img.src = this.src;
                 img.onerror = function () {
@@ -398,7 +365,6 @@
                 };
             },
             handleLimit(type, num) {
-                // console.log("handleLimit", type, num);
                 this.$emit("onLimit", type, num);
             },
             sub(arg1, arg2) {
@@ -436,15 +402,23 @@
             }
         },
         watch: {
-            id: function () {
-                if (this.id) {
-                    // console.log("watch");
-                    this.changeImg();
-                    this.initCanvas();
-                }
-            },
+            // id: function () {
+            //     if (this.id) {
+            //         this.changeImg();
+            //         this.initCanvas();
+            //     }
+            // },
             src: function () {
                 this.changeImg();
+            },
+            config:{
+                handler(){
+                    if (this.id) {
+                        this.changeImg();
+                        this.initCanvas();
+                    }
+                },
+                deep:true,
             }
         },
     }
