@@ -31,6 +31,7 @@ Vue.component(DrawCanvase.name, DrawCanvase)
 |:---:|:---:|:---:|:---:|:---:|
 |id|每个组件的唯一标志|string|—|""|
 |config|组件相关配置|object|—|null|
+|showBgImg|是否显示背景图片|boolean|—|true|
 
 * Config Attributes
 
@@ -48,13 +49,17 @@ Vue.component(DrawCanvase.name, DrawCanvase)
 |参数|说明|类型|可选值|默认值|
 |:---:|:---:|:---:|:---:|:---:|
 |id|图形唯一标志|string|—|""|
-|type|类型|string|zone/line/rect/direct|—|
+|type|类型|string|zone/line/rect/direct/circle|—|
+|radius|半径(仅对圆有效)|number|—|—|
 |limit|限制个数|number|—|—|
 |color|线条颜色|string|—|—|
 |fill|填充颜色|string|—|—|
+|text|显示的名称|string|—|—|
+|point|坐标点|object|—|—|
 |show|是否绘制图形|boolean|—|—|
 |showNumber|是否显示锚点数字|boolean|—|—|
 |draw|图形是否可绘制|boolean|—|—|
+
 
 * Events
 
