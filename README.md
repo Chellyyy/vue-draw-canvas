@@ -51,6 +51,9 @@ Vue.component(DrawCanvase.name, DrawCanvase)
 |id|图形唯一标志|string|—|""|
 |type|类型|string|zone/line/rect/direct/circle|—|
 |radius|半径(仅对圆有效)|number|—|—|
+|sharp|箭头角度(仅对箭头有效)|number|—|—|
+|size|箭头长度(仅对箭头有效)|number|—|—|
+|theta|旋转角度顺时针(仅对箭头有效)|number|—|—|
 |limit|限制个数|number|—|—|
 |color|线条颜色|string|—|—|
 |fill|填充颜色|string|—|—|

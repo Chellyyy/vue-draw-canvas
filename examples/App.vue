@@ -16,11 +16,11 @@
                 containerW:400,
                 containerH:300,
                 config: {
-                    multiple: 1, //缩小倍数
+                    multiple: 0.5, //缩小倍数
                     magnify: true, //是否放大
                     width: 400, //当前显示的宽度
                     height: 300, //当前显示的高度
-                    src: testImg, //图片路径
+                    src: "", //图片路径
                     layer: [
                         {
                             id: 'zone1',//每种图形的唯一ID，limit事件触发的时候会带过来
@@ -68,7 +68,7 @@
                             point: [{"x":598,"y":264,"w":68,"h":68}],
                             show: true,
                             showNumber: true,
-                            draw: true
+                            draw: false
                         },
                         {
                             id: 'direct1',
@@ -92,7 +92,28 @@
                             show: true, //是否绘制图形
                             showNumber: true,//是否显示锚点数字
                             draw: false, //true当前是否可修改
-                        }
+                        },
+                        {
+                            id: 'test',//每种图形的唯一ID，limit事件触发的时候会带过来
+                            type: 'arrow',//'zone：不规则图形|line：线条|rect：规则矩形框'
+                            sharp: 0.2,//角度
+                            size: 0.5,//箭头长度相对于中心线长度
+                            color: 'rgba(225,255,0,1)', //线的颜色
+                            text: '画个箭头',//显示的名字
+                            theta:0,
+                            point: [{"x":250,"y":160},{"x":150,"y":80}], //线的坐标,
+                            show: true, //是否绘制图形
+                        },{
+                            id: 'test2',//每种图形的唯一ID，limit事件触发的时候会带过来
+                            type: 'arrow',
+                            sharp: 0.2,//角度
+                            size: 0.5,//箭头长度相对于中心线长度
+                            color: 'rgba(225,255,0,1)', //线的颜色
+                            text: '画个箭头',//显示的名字
+                            theta:0,//旋转角度
+                            point: [{"x":500,"y":80},{"x":600,"y":180}], //线的坐标,
+                            show: true, //是否绘制图形
+                        },
                     ]
                 },
                 id: "test",

@@ -79,6 +79,20 @@
                 let number = config.showNumber;
                 let fill = config.fill;
                 let text = config.text;
+                let sharp = config.sharp;
+                let size = config.size;
+                let theta = config.theta || 0;
+                function thetaPoint(center, point, angle){
+                    let b = {};
+                    if(angle===0){
+                        b.x = point.x;
+                        b.y = point.y;
+                    }else{
+                        b.x = ( point.x - center.x)*Math.cos(Math.PI/180*angle) - (point.y - center.y)*Math.sin(Math.PI/180*angle) + center.x;
+                        b.y = (point.x - center.x)*Math.sin(Math.PI/180*angle) + (point.y - center.y)*Math.cos(Math.PI/180*angle) + center.y;
+                    }
+                    return b;
+                }
 
                 function drawZone(item) {
                     ctx.beginPath();
@@ -205,7 +219,7 @@
                     ctx.fillStyle = color;
                     ctx.fillText(text, x - 5, y - 5);
                     ctx.stroke();
-                    drawArrow(ctx, [{x: x, y: y}, {x: x, y: y + h}], color)
+                    drawArrow(ctx, [{x: x, y: y + 50},{x: x, y: y}], color)
                 }
 
                 function drawCircle(item) {
@@ -219,11 +233,11 @@
 
                     for (let i = 0; i < item.length; i++) {
                         ctx.beginPath();
-                        ctx.arc(handleFn(item[i].x, "x"), handleFn(item[i].y, "y"), item[i].radius ? item[i].radius : radius, 0, 2 * Math.PI);
+                        ctx.arc(handleFn(item[i].x, "x"), handleFn(item[i].y, "y"), item[i].radius ? handleFn(item[i].radius, "r") : handleFn(radius, "r"), 0, 2 * Math.PI);
                         ctx.font = 'bold 15px SimSun';
                         ctx.fillStyle = color;
                         if (number) {
-                            ctx.fillText((i + 1), handleFn(item[i].x, "x"), handleFn(item[i].y, "y"));
+                            ctx.fillText((i + 1), handleFn(item[i].x-10, "x"), handleFn(item[i].y+10, "y"));
                         }
                         ctx.closePath();
                         if (fill) {
@@ -234,31 +248,19 @@
                         ctx.stroke();
                     }
                 }
-                function drawHeart(item) {
-                    let radius = config.radius || 5;
+                function drawArrows(item) {
+                    ctx.beginPath();
                     ctx.strokeStyle = color;
+                    let point1 = {x:handleFn(item[0].x, "x"),y:handleFn(item[0].y, "y")};
+                    let point2 = {x:handleFn(item[1].x, "x"),y:handleFn(item[1].y, "y")};
+                    point2 = thetaPoint(point1,point2, theta);
+                    ctx.moveTo(point1.x, point1.y);
+                    ctx.lineTo(point2.x, point2.y);
+                    ctx.stroke();
                     ctx.font = 'bold 15px SimSun';
                     ctx.fillStyle = color;
-                    if (text) {
-                        ctx.fillText(text, handleFn(item[0].x, "x") + 10, (handleFn(item[0].y, "y") - 5));
-                    }
-
-                    for (let i = 0; i < item.length; i++) {
-                        ctx.beginPath();
-                        ctx.arc(handleFn(item[i].x, "x"), handleFn(item[i].y, "y"), item[i].radius ? item[i].radius : radius, 0, 2 * Math.PI);
-                        ctx.font = 'bold 15px SimSun';
-                        ctx.fillStyle = color;
-                        if (number) {
-                            ctx.fillText((i + 1), handleFn(item[i].x, "x"), handleFn(item[i].y, "y"));
-                        }
-                        ctx.closePath();
-                        if (fill) {
-                            ctx.fillStyle = fill;
-                            // ctx.globalAlpha = 0.5;
-                            ctx.fill();
-                        }
-                        ctx.stroke();
-                    }
+                    ctx.fillText(text, point2.x + 15*((point2.x-point1.x)/Math.abs(point2.x-point1.x)),point2.y + 15*((point2.y-point1.y)/Math.abs(point2.y-point1.y)));
+                    drawArrow(ctx, [point1,point2], color)
 
                 }
 
@@ -267,9 +269,18 @@
                     if (color) {
                         option.color = color
                     }
-                    option.sp = {x: point[1].x, y: point[1].y};
-                    option.ep = {x: point[0].x, y: point[0].y};
-                    paint(option, ctx)
+                    if(sharp){
+                        option.sharp = sharp;
+                    }
+                    if(size){
+                        option.size = size;
+                    }
+
+                    for (let i = 0; i < point.length; i++) {
+                        option.sp = {x: point[0].x, y: point[0].y};
+                        option.ep = {x: point[1].x, y: point[1].y};
+                        paint(option, ctx)
+                    }
                 }
 
                 function paint(a, context) {
@@ -286,7 +297,9 @@
                     context.lineTo(h.h1.x, h.h1.y);
                     context.moveTo(ep.x, ep.y);
                     context.lineTo(h.h2.x, h.h2.y);
+
                     context.stroke();
+
                 }
 
                 //计算头部坐标
@@ -317,18 +330,25 @@
                     };
                 }
 
-                if (type === 'rect') {
-                    drawRect(point)
-                } else if (type === 'zone') {
-                    drawZone(point)
-                } else if (type === 'line') {
-                    drawLine(point)
-                } else if (type === 'direct') {
-                    drawDirect(point)
-                } else if (type === 'circle') {
-                    drawCircle(point)
-                } else if (type === 'heart') {
-                    drawHeart(point)
+                switch(type){
+                    case 'rect':
+                        drawRect(point);
+                        break;
+                    case 'zone':
+                        drawZone(point);
+                        break;
+                    case 'line':
+                        drawLine(point);
+                        break;
+                    case 'direct':
+                        drawDirect(point);
+                        break;
+                    case 'circle':
+                        drawCircle(point);
+                        break;
+                    case 'arrow':
+                        drawArrows(point);
+                        break
                 }
                 ctx.closePath();
             },
@@ -346,18 +366,17 @@
 
                     });
 
-                    if (this.magnify) {
-                        let mc = this.$refs.mCan;
-                        let mctx = mc.getContext("2d");
-                        let _this = this;
-                        let biggerImg = document.createElement("img"); // 创建一个img元素
-                        mc.style.display = "none";
-                        // 存储未绘制状态
-                        ctx.save();
-                        mctx.clearRect(0, 0, 300, 300);
+                    if (this.magnify&&this.showBg) {
+                        this.$nextTick(function () {
+                            let mc = this.$refs.mCan;
+                            let biggerImg = this.$refs.bgImg; // 创建一个img元素
+                            let mctx = mc.getContext("2d");
+                            let _this = this;
 
-
-                        let handleMagnify = function () {
+                            mc.style.display = "none";
+                            // 存储未绘制状态
+                            ctx.save();
+                            mctx.clearRect(0, 0, 300, 300);
                             c.onmouseout = null;
                             c.onmousemove = null;
                             c.onmouseout = function () {
@@ -394,20 +413,20 @@
                                 mc.style.left = (e.clientX - bbox.left) + "px";
                                 mc.style.top = (e.clientY - bbox.top) + "px";
                             }
-                        };
-                        biggerImg.src = _this.src; // 给img元素的src属性赋值
-                        biggerImg.onload = function () {
-                            handleMagnify();
-                            biggerImg.onerror = null;
-                            biggerImg.onload = null
-                        };
-                        biggerImg.onerror = function () {
-                            biggerImg.src = png404;
-                            _this.config.multiple = 1;
-                            handleMagnify();
-                            biggerImg.onerror = null;
-                            biggerImg.onload = null
-                        }
+                        })
+                        // biggerImg.src = _this.src; // 给img元素的src属性赋值
+                        // biggerImg.onload = function () {
+                        //     handleMagnify();
+                        //     biggerImg.onerror = null;
+                        //     biggerImg.onload = null
+                        // };
+                        // biggerImg.onerror = function () {
+                        //     biggerImg.src = png404;
+                        //     _this.config.multiple = 1;
+                        //     handleMagnify();
+                        //     biggerImg.onerror = null;
+                        //     biggerImg.onload = null
+                        // }
 
                     }
                 }
@@ -451,7 +470,7 @@
                 return p * this.multiple
             },
             magnifyDraw(p, type) {
-                if (type === "w" || type === "h") {
+                if (type === "w" || type === "h" || type ==="r") {
                     return p;
                 }
                 let multiple = (1 / this.multiple).toFixed(4);
