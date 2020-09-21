@@ -44,7 +44,7 @@
                             point: [[{"x":170,"y":504},{"x":606,"y":464}],[{"x":152,"y":432},{"x":618,"y":400}]],
                             show: true,
                             showNumber: true,
-                            draw: false,
+                            draw: true,
                         },
                         {
                             id: 'rect1',

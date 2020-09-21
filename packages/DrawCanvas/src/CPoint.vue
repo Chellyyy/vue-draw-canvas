@@ -99,6 +99,15 @@
                 }
                 return p;
             },
+            realW:function () {
+                return Math.round(this.width*this.realM)
+            },
+            realH:function () {
+                return Math.round(this.height*this.realM)
+            },
+            realM:function () {
+                return (1/this.multiple).toFixed(4);
+            }
         },
         updated() {
         },
@@ -134,6 +143,7 @@
             },
             handleCLeave() {
                 if (this.clickFlag) {
+                    console.log("leave");
                     this.clickFlag = false;
                     this.current = null;
                     this.currentX = 0;
@@ -141,6 +151,7 @@
                 }
             },
             handlePMouseDown(e) {
+                console.log('down');
                 this.clickFlag = true;
                 this.current = e.currentTarget.id;
                 this.currentX = e.pageX - e.currentTarget.offsetLeft;
@@ -159,8 +170,8 @@
                                 return
                             }
                         }
-                        x = this.getRealPoint(x);
-                        y = this.getRealPoint(y);
+                        x = this.getRealPoint(x, 'x');
+                        y = this.getRealPoint(y, 'y');
                         this.point.splice(0, 1, {x, y, w: 0, h: 0});
                         this.clickFlag = true;
                         this.currentX = e.pageX - e.offsetX;
@@ -176,12 +187,12 @@
                             this.$emit('handleLimit', this.id, this.point.length);
                             return
                         }
-                        x = this.getRealPoint(x);
-                        y = this.getRealPoint(y);
+                        x = this.getRealPoint(x,'x');
+                        y = this.getRealPoint(y,'y');
                         this.point.push({x, y})
                     } else if (this.type === 'line') {
-                        x = this.getRealPoint(x);
-                        y = this.getRealPoint(y);
+                        x = this.getRealPoint(x,'x');
+                        y = this.getRealPoint(y,'y');
                         if (this.point.length * 2 === this.limit && this.point[this.point.length - 1].length === 2) {
                             this.$emit('handleLimit', this.id, this.point.length * 2);
                             return
@@ -196,26 +207,27 @@
             },
             handleCMouseMove(e) {
                 if (this.clickFlag) {
+                    let x = e.pageX - this.currentX;
+                    let y = e.pageY - this.currentY;
+                    if(x>=this.width||y>=this.height){
+                        this.clickFlag = false;
+                        return
+                    }
                     if (this.type === 'rect'){
                         let x1 = e.pageX - this.currentX;
                         let y1 = e.pageY - this.currentY;
+                        console.log('rect-bf', x1, y1);
                         x1 = this.getRealPoint(x1);
                         y1 = this.getRealPoint(y1);
-
+                        console.log('rect-af', x1, y1);
                         let tempPoint1 = this.point[0];
                         tempPoint1.w = Math.abs(tempPoint1.x - x1);
                         tempPoint1.h = Math.abs(tempPoint1.y - y1);
                         this.point.splice(0, 1, tempPoint1);
                         return
                     }
-                    let x = e.pageX - this.currentX;
-                    let y = e.pageY - this.currentY;
-                    if(x>=this.width-5||y>=this.height-5){
-                        this.clickFlag = false;
-                        return
-                    }
-                    x = this.getRealPoint(x);
-                    y = this.getRealPoint(y);
+                    x = this.getRealPoint(x,'x');
+                    y = this.getRealPoint(y,'y');
                     if (this.type === 'line') {
                         let tempId = this.current.slice(this.id.length);
                         let tempIndex = parseInt(tempId / 2);
@@ -231,14 +243,16 @@
                     let cY = e.offsetY;
                     let tX = cX - this.tempX;
                     let tY = cY - this.tempY;
+                    console.log('bf', tX,tY);
                     tX = this.getRealPoint(tX);
                     tY = this.getRealPoint(tY);
+                    console.log('af', tX,tY);
                     if (this.type === 'rect') {
                         let tempPoint2 = this.point[0];
                         tempPoint2.x = tempPoint2.x + tX;
                         tempPoint2.y = tempPoint2.y + tY;
-                        let w = this.getRealPoint(this.width);
-                        let h = this.getRealPoint(this.height);
+                        let w = this.realW;
+                        let h = this.realH;
                         if(tempPoint2.x<=5||tempPoint2.x+tempPoint2.w>=w-5||tempPoint2.y<=5||tempPoint2.y+tempPoint2.h>=h-5){
                             this.moveFlag = false;
                             this.tempX = 0;
@@ -249,16 +263,20 @@
                     }else if(this.type==='zone'){
                         let tempP = this.point;
                         for(let i =0;i<tempP.length;i++){
-                            tempP[i].x = tempP[i].x + tX;
-                            tempP[i].y = tempP[i].y + tY;
-                            let w = this.getRealPoint(this.width);
-                            let h = this.getRealPoint(this.height);
-                            if(tempP[i].x>=w-5||tempP[i].x<=5||
-                               tempP[i].y>=h-5||tempP[i].y<=5){
+                            let w = this.realW;
+                            let h = this.realH;
+                            let moveX = tempP[i].x + tX;
+                            let moveY = tempP[i].y + tY;
+                            console.log(moveX, moveY, tempP[i].x, tempP[i].y, tX, tY);
+                            if(moveX>=w-5||moveX<=5||
+                                moveY>=h-5||moveY<=5){
+                                console.log('over',moveX, moveY, tempP[i].x, tempP[i].y, tX, tY);
                                 this.moveFlag = false;
                                 this.tempP = null;
                                 return
                             }
+                            tempP[i].x = moveX;
+                            tempP[i].y = moveY;
                         }
                         this.point = tempP;
                         this.point.splice(0,0);
@@ -268,8 +286,8 @@
                 }
             },
             pointInPolygon(p) {
-                p.x = this.getRealPoint(p.x);
-                p.y = this.getRealPoint(p.y);
+                p.x = this.getRealPoint(p.x,'x');
+                p.y = this.getRealPoint(p.y,'y');
                 let nCross = 0;
                 let ptPolygon = this.point;
                 let nCount = ptPolygon.length;
@@ -300,9 +318,18 @@
                 // 单边交点为偶数，点在多边形之外 ---
                 return (nCross % 2 == 1);
             },
-            getRealPoint(x){
-                let tempM = (1/this.multiple).toFixed(4);
-                return Math.round(x*tempM)
+            getRealPoint(x, type){
+                if(type){
+                    x = x < 0 ? 0 : x;
+                    let max = 0;
+                    if(type==='x'){
+                        max = this.width;
+                    }else if(type==='y'){
+                        max = this.height;
+                    }
+                    x = x > max ? max : x;
+                }
+                return Math.round(x*this.realM)
             }
         }
     }
