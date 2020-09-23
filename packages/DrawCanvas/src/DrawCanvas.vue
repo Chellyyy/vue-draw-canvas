@@ -54,7 +54,6 @@
             }
         },
         updated() {
-            // console.log("vue-draw-canvas updated");
             this.initCanvas();
         },
         mounted() {
@@ -82,14 +81,15 @@
                 let sharp = config.sharp;
                 let size = config.size;
                 let theta = config.theta || 0;
-                function thetaPoint(center, point, angle){
+
+                function thetaPoint(center, point, angle) {
                     let b = {};
-                    if(angle===0){
+                    if (angle === 0) {
                         b.x = point.x;
                         b.y = point.y;
-                    }else{
-                        b.x = ( point.x - center.x)*Math.cos(Math.PI/180*angle) - (point.y - center.y)*Math.sin(Math.PI/180*angle) + center.x;
-                        b.y = (point.x - center.x)*Math.sin(Math.PI/180*angle) + (point.y - center.y)*Math.cos(Math.PI/180*angle) + center.y;
+                    } else {
+                        b.x = (point.x - center.x) * Math.cos(Math.PI / 180 * angle) - (point.y - center.y) * Math.sin(Math.PI / 180 * angle) + center.x;
+                        b.y = (point.x - center.x) * Math.sin(Math.PI / 180 * angle) + (point.y - center.y) * Math.cos(Math.PI / 180 * angle) + center.y;
                     }
                     return b;
                 }
@@ -219,7 +219,7 @@
                     ctx.fillStyle = color;
                     ctx.fillText(text, x - 5, y - 5);
                     ctx.stroke();
-                    drawArrow(ctx, [{x: x, y: y + 50},{x: x, y: y}], color)
+                    drawArrow(ctx, [{x: x, y: y + 50}, {x: x, y: y}], color)
                 }
 
                 function drawCircle(item) {
@@ -237,7 +237,7 @@
                         ctx.font = 'bold 15px SimSun';
                         ctx.fillStyle = color;
                         if (number) {
-                            ctx.fillText((i + 1), handleFn(item[i].x-10, "x"), handleFn(item[i].y+10, "y"));
+                            ctx.fillText((i + 1), handleFn(item[i].x - 10, "x"), handleFn(item[i].y + 10, "y"));
                         }
                         ctx.closePath();
                         if (fill) {
@@ -248,19 +248,20 @@
                         ctx.stroke();
                     }
                 }
+
                 function drawArrows(item) {
                     ctx.beginPath();
                     ctx.strokeStyle = color;
-                    let point1 = {x:handleFn(item[0].x, "x"),y:handleFn(item[0].y, "y")};
-                    let point2 = {x:handleFn(item[1].x, "x"),y:handleFn(item[1].y, "y")};
-                    point2 = thetaPoint(point1,point2, theta);
+                    let point1 = {x: handleFn(item[0].x, "x"), y: handleFn(item[0].y, "y")};
+                    let point2 = {x: handleFn(item[1].x, "x"), y: handleFn(item[1].y, "y")};
+                    point2 = thetaPoint(point1, point2, theta);
                     ctx.moveTo(point1.x, point1.y);
                     ctx.lineTo(point2.x, point2.y);
                     ctx.stroke();
                     ctx.font = 'bold 15px SimSun';
                     ctx.fillStyle = color;
-                    ctx.fillText(text, point2.x + 15*((point2.x-point1.x)/Math.abs(point2.x-point1.x)),point2.y + 15*((point2.y-point1.y)/Math.abs(point2.y-point1.y)));
-                    drawArrow(ctx, [point1,point2], color)
+                    ctx.fillText(text, point2.x + 15 * ((point2.x - point1.x) / Math.abs(point2.x - point1.x)), point2.y + 15 * ((point2.y - point1.y) / Math.abs(point2.y - point1.y)));
+                    drawArrow(ctx, [point1, point2], color)
 
                 }
 
@@ -269,10 +270,10 @@
                     if (color) {
                         option.color = color
                     }
-                    if(sharp){
+                    if (sharp) {
                         option.sharp = sharp;
                     }
-                    if(size){
+                    if (size) {
                         option.size = size;
                     }
 
@@ -330,7 +331,7 @@
                     };
                 }
 
-                switch(type){
+                switch (type) {
                     case 'rect':
                         drawRect(point);
                         break;
@@ -366,7 +367,7 @@
 
                     });
 
-                    if (this.magnify&&this.showBg) {
+                    if (this.magnify && this.showBg) {
                         this.$nextTick(function () {
                             let mc = this.$refs.mCan;
                             let biggerImg = this.$refs.bgImg; // 创建一个img元素
@@ -432,12 +433,14 @@
                 }
             },
             changeImg() {
-                let img = this.$refs.bgImg;
-                img.src = this.src;
-                img.onerror = function () {
-                    img.src = png404;
-                    img.onerror = null;
-                }
+                this.$nextTick(function () {
+                    let img = this.$refs.bgImg;
+                    img.src = this.src;
+                    img.onerror = function () {
+                        img.src = png404;
+                        img.onerror = null;
+                    }
+                })
             },
             getLocation(id, x, y) {
                 let c = this.$refs[id];
@@ -470,7 +473,7 @@
                 return p * this.multiple
             },
             magnifyDraw(p, type) {
-                if (type === "w" || type === "h" || type ==="r") {
+                if (type === "w" || type === "h" || type === "r") {
                     return p;
                 }
                 let multiple = (1 / this.multiple).toFixed(4);

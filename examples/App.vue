@@ -2,6 +2,7 @@
     <div id="app">
         <div v-bind:style="{ width: containerW +'px', height: containerH + 'px' }">
             <DrawCanvas :id="id" :config="config"></DrawCanvas>
+            <button @click="changeBg">{{this.config.showBgImg?'隐藏图片':'显示图片'}}</button>
         </div>
     </div>
 </template>
@@ -21,6 +22,7 @@
                     width: 400, //当前显示的宽度
                     height: 300, //当前显示的高度
                     src: "", //图片路径
+                    showBgImg:true,
                     layer: [
                         {
                             id: 'zone1',//每种图形的唯一ID，limit事件触发的时候会带过来
@@ -144,6 +146,9 @@
                     }
                 })
             },
+            changeBg(){
+                this.config.showBgImg = !this.config.showBgImg;
+            }
         },
         mounted(){
             let that = this;
