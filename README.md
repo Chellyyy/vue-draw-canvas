@@ -21,6 +21,10 @@ Vue.use(DrawCanvas)
 import { DrawCanvase } from 'vue-draw-canvas'
 
 Vue.component(DrawCanvase.name, DrawCanvase)
+
+//use like
+<DrawCanvas :id="id" :config="config" :layer.sync="layer"></DrawCanvas>
+
 ```
 ### Usage
 ![image](https://github.com/Chellyyy/vue-draw-canvas/blob/master/examples/assets/example.png?raw=true)  
@@ -31,6 +35,7 @@ Vue.component(DrawCanvase.name, DrawCanvase)
 |:---:|:---:|:---:|:---:|:---:|
 |id|每个组件的唯一标志|string|—|""|
 |config|组件相关配置|object|—|null|
+|layer|图形参数|array|—|—|
 |showBgImg|是否显示背景图片|boolean|—|true|
 
 * Config Attributes
@@ -42,7 +47,7 @@ Vue.component(DrawCanvase.name, DrawCanvase)
 |multiple|缩小倍数|number|—|1|
 |width|当前显示的宽度|number|—|—|
 |height|当前显示的高度|number|—|—|
-|layer|图形参数|object|—|—|
+
 
 * Layer Attributes
 

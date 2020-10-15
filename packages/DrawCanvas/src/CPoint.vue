@@ -49,6 +49,7 @@
                 currentY: 0,
                 tempX: 0,
                 tempY: 0,
+                myPoint: []
                 // tempP:null,
             }
         },
@@ -76,7 +77,7 @@
             narrowP:function () {
                 let p =[];
                 if(this.type==="line"){
-                    this.point.map(pItem=>{
+                    this.myPoint.map(pItem=>{
                         let pi = [];
                         pItem.map(item=>{
                             pi.push({x:parseFloat((item.x*this.multiple).toFixed(4)),y:parseFloat((item.y*this.multiple).toFixed(4))})
@@ -85,11 +86,11 @@
                     });
 
                 }else if(this.type==='zone'){
-                    this.point.map(item=>{
+                    this.myPoint.map(item=>{
                         p.push({x:parseFloat((item.x*this.multiple).toFixed(4)),y:parseFloat((item.y*this.multiple).toFixed(4))})
                     });
                 }else if(this.type==='rect'){
-                    this.point.map(item=>{
+                    this.myPoint.map(item=>{
                         p.push({x:parseFloat((item.x*this.multiple).toFixed(4)),
                             y:parseFloat((item.y*this.multiple).toFixed(4)),
                             w:parseFloat((item.w*this.multiple).toFixed(4)),
@@ -108,6 +109,9 @@
             realM:function () {
                 return (1/this.multiple).toFixed(4);
             }
+        },
+        created(){
+          this.myPoint = this.point.slice();
         },
         updated() {
         },
@@ -172,7 +176,7 @@
                         }
                         x = this.getRealPoint(x, 'x');
                         y = this.getRealPoint(y, 'y');
-                        this.point.splice(0, 1, {x, y, w: 0, h: 0});
+                        this.myPoint.splice(0, 1, {x, y, w: 0, h: 0});
                         this.clickFlag = true;
                         this.currentX = e.pageX - e.offsetX;
                         this.currentY = e.pageY - e.offsetY;
@@ -183,26 +187,27 @@
                             this.tempY = y;
                             return
                         }
-                        if (this.point.length === this.limit) {
+                        if (this.myPoint.length === this.limit) {
                             this.$emit('handleLimit', this.id, this.point.length);
                             return
                         }
                         x = this.getRealPoint(x,'x');
                         y = this.getRealPoint(y,'y');
-                        this.point.push({x, y})
+                        this.myPoint.push({x, y})
                     } else if (this.type === 'line') {
                         x = this.getRealPoint(x,'x');
                         y = this.getRealPoint(y,'y');
-                        if (this.point.length * 2 === this.limit && this.point[this.point.length - 1].length === 2) {
-                            this.$emit('handleLimit', this.id, this.point.length * 2);
+                        if (this.myPoint.length * 2 === this.limit && this.myPoint[this.myPoint.length - 1].length === 2) {
+                            this.$emit('handleLimit', this.id, this.myPoint.length * 2);
                             return
                         }
-                        if (this.point.length&&this.point[this.point.length - 1]&&this.point[this.point.length - 1].length === 1) {
-                            this.point[this.point.length - 1].push({x, y})
+                        if (this.myPoint.length&&this.myPoint[this.myPoint.length - 1]&&this.myPoint[this.myPoint.length - 1].length === 1) {
+                            this.myPoint[this.myPoint.length - 1].push({x, y})
                         } else {
-                            this.point.push([{x, y}])
+                            this.myPoint.push([{x, y}])
                         }
                     }
+                    this.$emit('update:point', this.myPoint)
                 }
             },
             handleCMouseMove(e) {
@@ -223,7 +228,8 @@
                         let tempPoint1 = this.point[0];
                         tempPoint1.w = Math.abs(tempPoint1.x - x1);
                         tempPoint1.h = Math.abs(tempPoint1.y - y1);
-                        this.point.splice(0, 1, tempPoint1);
+                        this.myPoint.splice(0, 1, tempPoint1);
+                        this.$emit('update:point', this.myPoint);
                         return
                     }
                     x = this.getRealPoint(x,'x');
@@ -233,10 +239,11 @@
                         let tempIndex = parseInt(tempId / 2);
                         let tempPoint = this.point[tempIndex];
                         tempPoint.splice(tempId % 2, 1, {x, y});
-                        this.point.splice(tempIndex, 1, tempPoint);
+                        this.myPoint.splice(tempIndex, 1, tempPoint);
                     } else if (this.type === 'zone') {
-                        this.point.splice(this.current.slice(this.id.length), 1, {x, y});
+                        this.myPoint.splice(this.current.slice(this.id.length), 1, {x, y});
                     }
+                    this.$emit('update:point', this.myPoint)
                 }
                 if (this.moveFlag) {
                     let cX = e.offsetX;
@@ -248,7 +255,7 @@
                     tY = this.getRealPoint(tY);
                     console.log('af', tX,tY);
                     if (this.type === 'rect') {
-                        let tempPoint2 = this.point[0];
+                        let tempPoint2 = this.myPoint[0];
                         tempPoint2.x = tempPoint2.x + tX;
                         tempPoint2.y = tempPoint2.y + tY;
                         let w = this.realW;
@@ -259,9 +266,9 @@
                             this.tempY = 0;
                             return
                         }
-                        this.point.splice(0, 1, tempPoint2);
+                        this.myPoint.splice(0, 1, tempPoint2);
                     }else if(this.type==='zone'){
-                        let tempP = this.point;
+                        let tempP = this.myPoint;
                         for(let i =0;i<tempP.length;i++){
                             let w = this.realW;
                             let h = this.realH;
@@ -278,11 +285,12 @@
                             tempP[i].x = moveX;
                             tempP[i].y = moveY;
                         }
-                        this.point = tempP;
-                        this.point.splice(0,0);
+                        this.myPoint = tempP;
+                        this.myPoint.splice(0,0);
                     }
                     this.tempX = cX;
                     this.tempY = cY;
+                    this.$emit('update:point', this.myPoint)
                 }
             },
             pointInPolygon(p) {

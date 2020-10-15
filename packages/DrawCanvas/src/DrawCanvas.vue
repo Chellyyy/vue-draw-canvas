@@ -7,10 +7,13 @@
         <canvas v-if="magnify" ref="mCan" width="200" height="200" class="magnify-canvas"
                 style="z-index: 2001;position: absolute;"></canvas>
         <div class="point" v-bind:style="{ width: config.width +'px', height: config.height + 'px' }">
-            <template v-for="item of config.layer">
+            <template v-for="item of layer">
                 <CPoint v-if="item.draw"
                         :multiple="multiple"
-                        :type="item.type" v-bind:key="item.id" :id="item.id" :point="item.point" :limit="item.limit"
+                        :type="item.type" v-bind:key="item.id" :id="item.id"
+                        v-on:update:point="updatePoint($event, item.id)"
+                        v-bind:point="item.point"
+                        :limit="item.limit"
                         :width="config.width" :height="config.height" @handleLimit="handleLimit"></CPoint>
             </template>
         </div>
@@ -29,14 +32,18 @@
         props: {
             id: String,
             config: Object,
-
+            layer: Array,
         },
         data: function () {
             return {
                 ctx: null,
                 centerX: 0,
                 centerY: 0,
+                myLayer:{}
             }
+        },
+        created(){
+
         },
         computed: {
             src: function () {
@@ -57,6 +64,7 @@
             this.initCanvas();
         },
         mounted() {
+            this.myLayer = this.layer.slice();
             console.log("vue-draw-canvas mounted");
             this.initCanvas();
             if (this.showBg) {
@@ -69,6 +77,15 @@
         },
 
         methods: {
+            updatePoint(point, id){
+                this.myLayer.map(item=>{
+                    if(item.id===id){
+                        item.point = point;
+                    }
+                });
+                console.log(point);
+                this.$emit('update:config', this.myLayer);
+            },
             draw(ctx, config, handleFn) {
                 // let _that = this;
                 // let name = config.id;
@@ -354,13 +371,13 @@
                 ctx.closePath();
             },
             initCanvas() {
-                if (this.config.layer) {
+                if (this.myLayer) {
                     let c = this.$refs.can;
                     let ctx = c.getContext("2d");
 
                     ctx.clearRect(0, 0, 2000, 2000);
                     // ctx.drawImage(img,0,0,_this.width,_this.height);
-                    this.config.layer.forEach(item => {
+                    this.myLayer.forEach(item => {
                         if (item.point.length > 0 && item.show) {
                             this.draw(ctx, item, this.narrowDraw)
                         }
@@ -404,7 +421,7 @@
                                     originalRadius, originalRadius);
                                 _this.centerX = centerPoint.x;
                                 _this.centerY = centerPoint.y;
-                                _this.config.layer.forEach(item => {
+                                _this.myLayer.forEach(item => {
                                     if (item.point.length > 0 && item.show) {
                                         _this.draw(mctx, item, _this.magnifyDraw)
                                     }
