@@ -88,8 +88,7 @@ npm run serve
 
 |方法名|说明|回调参数|
 |:---:|:---:|:---:|
-|getImage|获得原始图片的blob对象|-|
-|getCanvas|获得当前Canvas的blob对象|-|
+|onLimit|超过个数的回调|(id,num)|
 
 * Methods
 
