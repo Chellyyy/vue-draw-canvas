@@ -158,7 +158,6 @@ export default {
     },
     handleCLeave() {
       if (this.clickFlag) {
-        console.log("leave");
         this.clickFlag = false;
         this.current = null;
         this.currentX = 0;
@@ -166,7 +165,6 @@ export default {
       }
     },
     handlePMouseDown(e) {
-      console.log('down');
       this.clickFlag = true;
       this.current = e.currentTarget.id;
       this.currentX = e.pageX - e.currentTarget.offsetLeft;
@@ -222,7 +220,6 @@ export default {
       }
     },
     handleCMouseMove(e) {
-      console.log('mousemove', new Date().getTime());
       if (this.clickFlag) {
         let x = e.pageX - this.currentX;
         let y = e.pageY - this.currentY;
@@ -233,10 +230,8 @@ export default {
         if (this.type === 'rect') {
           let x1 = e.pageX - this.currentX;
           let y1 = e.pageY - this.currentY;
-          console.log('rect-bf', x1, y1);
           x1 = this.getRealPoint(x1);
           y1 = this.getRealPoint(y1);
-          console.log('rect-af', x1, y1);
           let tempPoint1 = this.point[0];
           tempPoint1.w = Math.abs(tempPoint1.x - x1);
           tempPoint1.h = Math.abs(tempPoint1.y - y1);
@@ -262,10 +257,8 @@ export default {
         let cY = e.offsetY;
         let tX = cX - this.tempX;
         let tY = cY - this.tempY;
-        console.log('bf', tX, tY);
         tX = this.getRealPoint(tX);
         tY = this.getRealPoint(tY);
-        console.log('af', tX, tY);
         if (this.type === 'rect') {
           let tempPoint2 = this.myPoint[0];
           tempPoint2.x = tempPoint2.x + tX;
@@ -286,10 +279,8 @@ export default {
             let h = this.realH;
             let moveX = tempP[i].x + tX;
             let moveY = tempP[i].y + tY;
-            console.log(moveX, moveY, tempP[i].x, tempP[i].y, tX, tY);
             if (moveX >= w - 5 || moveX <= 5 ||
               moveY >= h - 5 || moveY <= 5) {
-              console.log('over', moveX, moveY, tempP[i].x, tempP[i].y, tX, tY);
               this.moveFlag = false;
               this.tempP = null;
               return
