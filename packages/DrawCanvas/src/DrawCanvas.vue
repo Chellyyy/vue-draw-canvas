@@ -40,7 +40,7 @@ export default {
       ctx: null,
       centerX: 0,
       centerY: 0,
-      // myLayer: {}
+      myLayer: {}
     }
   },
   created() {
@@ -60,15 +60,18 @@ export default {
     showBg: function () {
       return this.config.showBgImg !== false;
     },
-    myLayer: function () {
-      return this.layer.slice()
+    showLength: function () {
+      return this.myLayer.map(item => {
+        return item.show
+      }).length
     }
   },
   updated() {
+    this.myLayer = this.layer.slice();
     this.initCanvas();
   },
   mounted() {
-    // this.myLayer = this.layer.slice();
+    this.myLayer = this.layer.slice();
     console.log("vue-draw-canvas mounted");
     this.initCanvas();
     if (this.showBg) {
@@ -92,7 +95,7 @@ export default {
         type: '*'
       });
     },
-    getImage(){
+    getImage() {
 
       let c = document.createElement("canvas");
       let ctx = c.getContext("2d");
@@ -114,7 +117,7 @@ export default {
       c.height = img.height;
       ctx.drawImage(img, 0, 0, this.config.width, this.config.height);
       ctx.save();
-      ctx.drawImage(this.$refs.can,0,0)
+      ctx.drawImage(this.$refs.can, 0, 0)
       let url = c.toDataURL("image/jpeg");
       let s = url.match(regPicPath);
       s = s[2];
@@ -554,6 +557,12 @@ export default {
     //         this.initCanvas();
     //     }
     // },
+
+    showLength: function (){
+      if (this.id) {
+        this.initCanvas()
+      }
+    },
     src: function () {
       if (this.showBg) {
         this.changeImg();
