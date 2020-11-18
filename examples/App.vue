@@ -2,10 +2,12 @@
   <div id="app">
     <div v-bind:style="{ width: containerW +'px', height: containerH + 'px' }">
       <DrawCanvas ref="canvas" :id="id" :config="config" :layer.sync="layer" @onLimit="onLimit"></DrawCanvas>
-      <button @click="changeBg">{{this.config.showBgImg?'隐藏图片':'显示图片'}}</button>
     </div>
-    <button @click="save">保存</button>
-    <div v-for="(item,index) of arr" :key="'arr'+item" :id="'name'+index"></div>
+    <div>
+      <button @click="changeBg">{{this.config.showBgImg?'隐藏图片':'显示图片'}}</button>
+      <button @click="save">保存</button>
+      <button @click="layer[0].show = !layer[0].show">{{this.layer[0].show ? '隐藏区域' : '显示区域'}}</button>
+    </div>
   </div>
 </template>
 
@@ -17,7 +19,18 @@ export default {
   name: 'App',
   data: function () {
     return {
-      arr: [1, 2, 3],
+      configKonva: {
+        width: 200,
+        height: 200
+      },
+      configCircle: {
+        x: 100,
+        y: 100,
+        radius: 70,
+        fill: "red",
+        stroke: "black",
+        strokeWidth: 4
+      },
       containerW: 400,
       containerH: 300,
       id: "test",
@@ -142,6 +155,7 @@ export default {
           height: 600
         };
         img.src = src;
+
         img.onload = function () {
           res.width = img.width;
           res.height = img.height;
@@ -164,9 +178,19 @@ export default {
     },
     save() {
       let canvas = this.$refs.canvas.getCanvas()
-      this.doSaveBlob('canvas.jpg', canvas)
+      if (canvas) {
+        this.doSaveBlob('canvas.jpg', canvas)
+      } else {
+        console.log(canvas)
+      }
+
       let blob = this.$refs.canvas.getImage()
-      this.doSaveBlob('image.jpg', blob)
+      if (blob) {
+        this.doSaveBlob('image.jpg', blob)
+      } else {
+        console.log(blob)
+      }
+
     },
     doSaveBlob(filename, blob) {
       let a = document.createElement('a');
@@ -187,10 +211,9 @@ export default {
       that.config.height = height;
       that.config.multiple = mul;
       that.config.src = testImg;
+    }).catch(e => {
+      console.log(e)
     })
-    for (let i in this.arr) {
-      console.log(document.getElementById("name" + i).style);
-    }
   },
 }
 </script>

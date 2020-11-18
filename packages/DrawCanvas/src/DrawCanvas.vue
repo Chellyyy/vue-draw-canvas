@@ -8,6 +8,19 @@
             style="z-index: 2001;position: absolute;"></canvas>
     <div class="point" v-bind:style="{ width: config.width +'px', height: config.height + 'px' }">
       <template v-for="item of layer">
+        <Layer :key="item.id"
+               :show="item.show"
+               :id="item.id"
+               :type="item.type"
+               :color="item.color"
+               :fill="item.fill"
+               :text="item.text"
+               :showNumber="item.showNumber"
+               :sharp="item.sharp"
+               :size="item.size"
+               :theta="item.theta"
+               :radius="item.radius"
+        ></Layer>
         <CPoint v-if="item.draw"
                 :multiple="multiple"
                 :type="item.type" v-bind:key="item.id" :id="item.id"
@@ -24,11 +37,13 @@
 const png404 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAEsCAYAAADtt+XCAAAACXBIWXMAAAsTAAALEwEAmpwYAAAIcmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDE4LTA4LTIyVDE1OjIwOjE2KzA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTA4LTA3VDE0OjA1OjQ1KzA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMC0wOC0wN1QxNDowNTo0NSswODowMCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowYTliNWM3ZS04ZWMzLTViNDMtOTUzYS1lZWUwZmQ1ODBmOWYiIHhtcE1NOkRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDo2OTNjOWVmMC1kMjkxLTBiNGMtODlkNC1hZGE2NzZlMWI0Y2IiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo5ZjY5ZTU4Zi0xZDI2LTcxNDQtYjFmZi0zMjRlN2VmNjE4Y2UiIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjlmNjllNThmLTFkMjYtNzE0NC1iMWZmLTMyNGU3ZWY2MThjZSIgc3RFdnQ6d2hlbj0iMjAxOC0wOC0yMlQxNToyMDoxNiswODowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTggKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo3OGIzZTg1YS1mMjYzLWExNGEtYjUyZi0zNmU1NmYyNjk2MzciIHN0RXZ0OndoZW49IjIwMTgtMDgtMjJUMTU6MjA6MTYrMDg6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE4IChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MGE5YjVjN2UtOGVjMy01YjQzLTk1M2EtZWVlMGZkNTgwZjlmIiBzdEV2dDp3aGVuPSIyMDIwLTA4LTA3VDE0OjA1OjQ1KzA4OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDxwaG90b3Nob3A6VGV4dExheWVycz4gPHJkZjpCYWc+IDxyZGY6bGkgcGhvdG9zaG9wOkxheWVyTmFtZT0iNDA0IiBwaG90b3Nob3A6TGF5ZXJUZXh0PSI0MDQiLz4gPHJkZjpsaSBwaG90b3Nob3A6TGF5ZXJOYW1lPSJOT1QgRk9VTkQiIHBob3Rvc2hvcDpMYXllclRleHQ9Ik5PVCBGT1VORCIvPiA8L3JkZjpCYWc+IDwvcGhvdG9zaG9wOlRleHRMYXllcnM+IDxwaG90b3Nob3A6RG9jdW1lbnRBbmNlc3RvcnM+IDxyZGY6QmFnPiA8cmRmOmxpPmFkb2JlOmRvY2lkOnBob3Rvc2hvcDpkNWRiYjIyNC01MzM1LTQ4NDAtYTY5Mi05NmYwMGQ2ZWQ2M2Y8L3JkZjpsaT4gPHJkZjpsaT54bXAuZGlkOmZkMjFjM2QyLTIwZDEtOTg0YS1hMDFkLWZjNGJiZTg3YjJiMzwvcmRmOmxpPiA8L3JkZjpCYWc+IDwvcGhvdG9zaG9wOkRvY3VtZW50QW5jZXN0b3JzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PooHu94AABFaSURBVHja7d3tcdu4FgbgtKAW1IJaUAtqQS2wBbXgFtSCdu7cAtSCWmALvsmOs5P1TWTi8AAgqcczz6/dWDJB4CU+CHx7f3//BgClXAQABAgAAgQAAQKAAAEAAQKAAAFAgAAgQAAQIAAgQAAQIAAIEAAECAACBAAECAACBAABAoAAAUCAAIAAAUCAACBAABAgAAgQABAgAAgQAAQIAAIEAAECAAIEAAECgAABQIAAIEAAQIAAIEAAECAACBAAECAACBAABAgAAgQAAQIAAgQAAQKAAAFAgAAgQABAgAAgQAAQIAAIEAAECAAIEAAECAACBAABAoAAAQABAoAAAUCAACBAABAgACBAABAgAAgQAAQIAAIEAAQIBTeAnz/+/PWf/56/Gz48vnt/4v7L/3t4lWukDgkQBEhWg/v2RSOb5VIpMPYfAXBP+p4/rsdpIWHYrGzUKwGCAIk0vu+NDMmN6+m7W8Xv+6P3cu4YHk3LRr0SIAiQpT7h/nBM+s7HxN7GFPes777kslGvBAgCZKlPuD/sZn7f3XfXxt+5Wg9qaWWjXgkQBMhSn3DHhF7H2DE8/pkf2WDvY1SnBAgCZMlPuNeZq6reF+Sysd7HVZ0SIAiQpT7hhhvdBYbHT6eN9D6swBIgCJBFP+G+R1Yzfayyel+ox0Z6H3+XjTolQBAgS33CfS99Se/H/7/g8AiH4lLLRp0SIAiQpT7hvge+530FAXLbQO/jXX0SIAiQJT/h3jvOe/zrHY4Kq7l2K+993NUnAYIAWewTbukKrAn7V5W8Sb77ze8fljaZ3rNs1CcBggBZ6hNu0Qt4yb2PoddnrKls1CcBggBZ6hNu0VN68tzHrkGAXFbc+/i7bNQnAYIAWeoT7g/7Diuv7k8+Z1jSm+m9y0Z9EiAIkKU+4Y4F3/PSomeQ/DlvK+592MJEgCBAFv2Ee+8wef502Cx5Q8a3Ffc+rMASIAiQxT7hTp4jqPDi4L5RUA0r7X3YwkSAIEDSn3DHHiuwkuclxi8+630hAdK9bNQlAYIAebYFevF7AT0OkUr+3FvDns4pGB6LKBt1SYAgQP7USJUe93qrMCa/m/hdx0YT6Nm7+x6CAbKIslGXBAgCJOsJ95z8HsbYaf5jaLQCK7SVyVLKRj0SIAiQrCfcR4X5gWuH+Y+nvYLkYaCxUe+jStmoRwIEAZL1hDtU6AlcOsx/PO0VJA+V3Rv1PqqUjXokQBAgGU+4PxrVXYUDnM4TG9XMoZnHk8/Z9T4ffUllox4JEARIyhNupfmBw4QGdddq2Cx4bdKW8C6tbNQjAYIAmfuE+89Ld9lDSQucQB96LuFdUtmoQwIEAZLxhPtW6Q3te6cJ9FPDFVj7yr2PamWjDgkQBEjGE+6h9VBS5Ub90GiuZWzQ+6hWNuqQAEGAzH3CvfUYSkpoWEPDZr1WYC2xbNQhAYIAmdsQH3vPD7Rq1CtsXHip3PuoWjbqkABBgMx5wn30nh9ouay2wjLYoWLvo3rZqEMCBAEy5wn3XHEoaeoWJqcVr8A6Vux9VC8bdUiAIECiT7jjEuYHGq/Aava2+xrKRh0SIAiQ6NPpsIT5gZY7/3baJHKxZaMOCRBePEBmvFm9W8j8QLNGvfUS5aWXjTokQBAgt4yJ5o7zA5mf2fIQqUul3kezslGHBAgvbMYT7r7nUFKPRr3CIVLnSr2PZmWjDgkQXjtAbllP6Z3mB1quwGq6SeQaykYdEiDofaQMLTlEKvVt91WUjXokQND7mL201iFSuUuU11I26pEAQe9j9rh9x0OkMneXbXmIVI3zRpqXjbokQND7yGhgh5bzA1s+RGpNZaMuCRD0PjIaPYdIJbztvrayUZ8ECHofk8/UbjSU9LKHSK2tbNQnAYLex9z3IxwilbBEeY1lo04JEPQ+Zm2r7hCptNVSqysbdUqAoPcRPh/DIVI5PYa1lo16JUDQ+5i1J5VDpOb3sNZaNuqVAEHvI7S5oEOkcjaJXHPZqFsCBL2PWS/0OURq9lbrqy0bdUuAoPdR/HJaxaGkrR8i9UjqfSyibNQvAcL2AyS7se1ht8VDpLZSNuqZAGG7AXJfeQP12OohUlsoG3VMgLDtAFn7E+51Q4dInSoGYZeyUccECNsNj8MGGqlhi4dIbaVs1DMBwnYD5LSBRuq0kUOkxspB2KVs1DMBwnYD5LKBRurQcQXWWGuuZStlo54JELYbINeVN1Bj5ZfjHr2WwW6hbNQxAcK2A+Sx8kbqXnl78paHSJ0q/h1dykYdEyBsNzx2Gxgieau8hLflFia7ir2bLmWjngkQrMBa0wqs7Ib33Oht93vlpchWYCFASA2QYYMrsPYNV2DdK85/DFZgIUCwAqvtFib7FiuwKvR0DhtcgWULEwHiItiBd1UrsPY1f3+ldzQetU9T7FU26pkA4ZVvgOBPj0OkKgTIo9HfN3xr+NOybNQhAYIAiTRSzQ+RqrAK69HoBcJ94wBpVjbqkABBgEQaqeaHSFWY3B4bLN99+9b4p2XZqEMCBAFS2kB1OUSq0hDNW8XfPT7bJqVSeDQtG3VIgCBAShupZrvhNnpDvJZzh95H07JRhwQIAqS0kcp+h+EY+A5L3wak+dBVj7JRhwQIAqS0kWq2G27Dg57ee83pJAdI07JRhwQIAqS0kbr3WoG1gl7IvfW8R8+yUYcECAKktJGqdlztyudCuoZHj7JRhwQIAqSkgTr0XIHV4KW5lMOiOoVH87JRhwQIAqTnKp/zAsf9F/2m+ZLKRh0SIAiQnqt8DkmNZ49J9VvW91/oCqyDAEGAkBkgqcewJjeg+0a9kdvnbeYXEiDNy0YdEiAIkF4rn+6VGtLdx9N45nd9fPzO/beF/vQoG3VIgCBANv3zMbw1fLhN3ILk5/8/fPMjQBAgAAgQAAQIAAIEAAECAAIEAAECgAABQIAAIEDY9Jvgv2zzcfliy46T96xdP2+yI0AWIrr/0IQNAscJDd9x4jYenxvD0xe/91Zpw8JrYcNedVv2itfvENkdN7ole8t7cM5JiL9uJaPtECDCY2JDETym9FZ5l9bLk9899j5jI/EgpWOH63cqPZ98Rug0uwcrHG71I8B22hIB8qoBMvW8in2gkb482d78XqtB/xjOqbVl+qkgQLLOAtm1vH6FZ3g8gn/vLvDvZt+DFQ63+tmjEyIC5CUD5BJ5Cp74JPenxv2eWHnH3zSwp4oBcigIkIxjbR+tr19h7+Ya+Hvvwes0+x6seNTwm/ZEgLxigFyDY9anyNBL9uFCf2gkhloB0uEgpWvr6zdxaOj/nvAjoVP472bfg5Wu3z+9Km2KAHm1AHlExssnNtK730z4Vp/Yrnj6370wQDIOUrp0uH67yJBewd87BK9Txj34qDm8qU0RIK8UHruKT8KPGSujhsKx8Ufw6bl4mKJwWW3GZ547XL/iyfAZodPsHqw8N/Z3WWlXBMgrBcgx+vQ9oZG+Bhul8dNkcaQBXMIKrGPmnEvj63cuHdIr/HsPwX/X6h78ZziqcM5EgAiQlwqQkrmCsfBJ7hKcl7gGGpdHco/g8G3mT2QVU9Lvm339IpPhBd9vnDFf1eoeHH+pI/uC73fUrggQK7C+WEY58UnuHJy8HAJPwrfkHsEuIUAukWGZhAn52devYKjsreEKrIx7cOpn3YIBsteuCJBXCpDSuYJjQcN0CA4rHQMV/q11j2DC590jE8MJL0bOvn4FnzUE/t63mfNVc+7BqcF4iQzzalMEyKsFyBiZ0J3SMM0Ze45OGn/RAL9l9ggSG/zThN/V7PrNmAwfgyuwmtyDhZ91DgzzPrQpAuSVwmMfnUSe0DDdgy/2jRUb4dQewReftc+cb2l5/QqH+vaBv/cYvE5z78GiMgkM8161KwLklQIk8rb2dWLDdJ07H5A96Z0ZRokN/nut+ZTo9YtMhkf2zZqxY0D0HjyVrsAqHOa9aFcEiBVYXzzVTWyYhujYc41J7+gmfw1WYN0n/r5m169gqO/WeAXW3HuwqEwCw7xeIhQgtjCZsG/SsfQpvmTsuUYjnN0jaLCFydjr+lXewuSWcJ2i92DRHFhgmPegXREgVmBNeLIr2TV1xlBK2qR3do8gcb5lyvsVTa9f5RVYl6TrVHQPFn7W8EuAnKzAEiDEDpF6tnV1ydNz6Om/tMIn9QjekgIkbcuUltevcKjv2OAQqZR7sPCzTr8EyOQHD22KAHGIVIUNB2cMpfRYgTUkhEfGtR16XL8lHiKVdA8Wf8fCYV4rsASIQ6SSXOa+f5E56R19r2FGgGRc22OP67fQQ6Qy7sHiZdCFw7yOtxUgtjCpdDZHZCgl9N5DQo9g33ALk6kNbbPrt9BDpFqeD3P/FCC2cRcgJK3ACp3fHXyrOXMF1jkrjDqtwGp2/RZ6iFTGPXgNzD0VPXhoVwSIQ6T+vdY+4+k59PSfOeldsoFeUoDMPbDo2uP6LfAQqZR7MPodSx48tCkCxCFS5cskp2wLHh1KyVyBdYuMmwfDYxd9Sk7ewqT2CqwWh0hl3YO74NxT8c69CBCHSH1U9uCT9HXu2HOFRnhsuAIrdcv4ltdvgYdIZd2D0Y0op/bibGEiQGxh8rmyFzy5P1v9cg2MqR+yGuENHCLV7Pot8BCprHsw+h0fVmAJEMpXYI0f/99boPKeE4ZSzokrsNZ+iFSz67ewFVhj4RLmlEOkor047YoAeaUA+XIb7BlLfQ/BFUTHGo1wh0OkUudbWl6/4ERz9BCpSVuxJ92D1Tei1K4IEIdI/VLZo7v1zjh/ITL2vOZDpM7JZ4rMun4LPETqLbpbb0aZOERKgBA/RGoInhfiEKn1HiJVvFy48iFSQ/C8kHvGHJgtTAQI8UOkjsH9sqIrsKJjz7vEHsESD5Fqdv0iYVX5EKljcL+sWYdIRXpW2hUBYgXWb8Z0CxujOdtHRHaevbfuEXQ4RKrZ9QsuF75U/KxdIBDn3IOP4PyHLUwEiC1MfvdWbeGT2JwDfIY5/2aFh0hNXYHV7PoFj8yNngFyrTQkN/sQqY/wuJtAFyDEDpG6fQqQe+nYeLRR+hiuGCOftbJDpIaJv6/Z9StoaO+Bp/Rj4XW6zTh0aj/j3xZvGa9NESAOkfrDW7WFT9XjjAY8fNjSSg+ROiUPYc2+fhU/6xa4TtGXUeccIhXa8VebIkAcIvVpKeOnAHmLPsUXzkGUnIe969EjaL1lfMvrV/Fwp0Pgc85zekeNDqyyA68AsQLrdxX+U4AMf81YBlthy+7DxMa39SFSaeeX9Lp+wW1Dit51mXoPBntH0UOkQgdWaVMEiC1MnkwKFm6LMTx5ih6TKu2xZ48gab7iXvh7m12/5Cf2YcZ12gXPcxlaDctpTwSIFVhfvFVbOFl6TNqP6k/nQhwKG96lHiJ1CfzuZtcv4bPGZz26KffgjO90rNx7+9cQLwLEIVJP3qotHIffTXiSvgUao6Fyj6D1IVLRv6fZ9fv4rMgmhpcJ98Hjr8IlztF7MOFgr/eP3zGYMBcglBZAhZ+PxmB48nR4+/jvx29+ul6/j3mk4UkYjz8b1y1ea22AAAFAgACAAAFAgAAgQAAQIAAIEAAQIAAIEAAECAACBAAB4iIAIEAAECAACBAABAgACBAABAgAAgQAAQKAAAEAAQKAAAFAgAAgQAAQIAAgQAAQIAAIEAAECAACBAAECAACBAABAoAAAUCAAIAAAUCAACBAABAgAAgQABAgAAgQAAQIAAIEAAECAAIEAAECgAABQIAAgAABQIAAIEAAECAACBAAECAACBAABAgAAgQAAQIAAgQAAQKAAAFAgAAgQABAgAAgQAAQIAAIEAAECAAIEAAECAACBAABAoAAAQABAoAAAUCAACBAABAgACBAABAgAAgQAAQIAALERQBAgAAgQAAQIAAIEAAQIAAIEAAECAACBAABAgACBAABAoAAAUCAALB1/wNhEMLvkSwvAwAAAABJRU5ErkJggg==";
 const regPicPath = /(data:image\/jpeg;base64,)(.*)/;
 import CPoint from './CPoint'
+import Layer from './Layer'
 
 export default {
   name: "DrawCanvas",
   components: {
     CPoint,
+    Layer
   },
   props: {
     id: String,
@@ -40,7 +55,7 @@ export default {
       ctx: null,
       centerX: 0,
       centerY: 0,
-      myLayer: {}
+      myLayer: []
     }
   },
   created() {
@@ -60,11 +75,6 @@ export default {
     showBg: function () {
       return this.config.showBgImg !== false;
     },
-    showLength: function () {
-      return this.myLayer.map(item => {
-        return item.show
-      }).length
-    }
   },
   updated() {
     this.myLayer = this.layer.slice();
@@ -96,32 +106,43 @@ export default {
       });
     },
     getImage() {
+      try {
+        let c = document.createElement("canvas");
+        let ctx = c.getContext("2d");
+        const img = this.$refs.bgImg
+        c.width = img.naturalWidth;
+        c.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+        let url = c.toDataURL("image/jpeg");
+        let s = url.match(regPicPath);
+        s = s[2];
+        return this.dataURLtoBlob(s);
+      } catch (e) {
+        console.error('vue-draw-canvas error: Can not getImage', e)
+        return false
+      }
 
-      let c = document.createElement("canvas");
-      let ctx = c.getContext("2d");
-      const img = this.$refs.bgImg
-      c.width = img.naturalWidth;
-      c.height = img.naturalHeight;
-      ctx.drawImage(img, 0, 0);
-      let url = c.toDataURL("image/jpeg");
-      let s = url.match(regPicPath);
-      s = s[2];
-      return this.dataURLtoBlob(s);
     },
     getCanvas() {
-      const regPicPath = /(data:image\/jpeg;base64,)(.*)/;
-      let c = document.createElement("canvas");
-      let ctx = c.getContext("2d");
-      const img = this.$refs.bgImg
-      c.width = img.width;
-      c.height = img.height;
-      ctx.drawImage(img, 0, 0, this.config.width, this.config.height);
-      ctx.save();
-      ctx.drawImage(this.$refs.can, 0, 0)
-      let url = c.toDataURL("image/jpeg");
-      let s = url.match(regPicPath);
-      s = s[2];
-      return this.dataURLtoBlob(s);
+      try {
+        const regPicPath = /(data:image\/jpeg;base64,)(.*)/;
+        let c = document.createElement("canvas");
+        let ctx = c.getContext("2d");
+        const img = this.$refs.bgImg
+        c.width = img.width;
+        c.height = img.height;
+        ctx.drawImage(img, 0, 0, this.config.width, this.config.height);
+        ctx.save();
+        ctx.drawImage(this.$refs.can, 0, 0)
+        let url = c.toDataURL("image/jpeg");
+        let s = url.match(regPicPath);
+        s = s[2];
+        return this.dataURLtoBlob(s);
+      } catch (e) {
+        console.error('vue-draw-canvas error: Can not getCanvas', e)
+        return false
+      }
+
     },
     updatePoint(point, id) {
       this.myLayer.map(item => {
@@ -498,6 +519,7 @@ export default {
     changeImg() {
       this.$nextTick(function () {
         let img = this.$refs.bgImg;
+        img.crossOrigin = "Anonymous";
         img.src = this.src;
         img.onerror = function () {
           img.src = png404;
@@ -557,12 +579,6 @@ export default {
     //         this.initCanvas();
     //     }
     // },
-
-    showLength: function (){
-      if (this.id) {
-        this.initCanvas()
-      }
-    },
     src: function () {
       if (this.showBg) {
         this.changeImg();
